@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { EditorView } from 'prosemirror-view';
 import { EditorState } from 'prosemirror-state';
-// import { DOMParser } from 'prosemirror-model';
 import {
   schema,
   defaultMarkdownParser,
@@ -27,7 +26,6 @@ class MarkdownView {
     this.textarea.remove();
   }
 }
-// }
 
 class ProseMirrorView {
   constructor(target, content) {
@@ -41,6 +39,7 @@ class ProseMirrorView {
   }
 
   get content() {
+    console.log(this.view.state.doc)
     return defaultMarkdownSerializer.serialize(this.view.state.doc);
   }
   focus() {
@@ -50,9 +49,7 @@ class ProseMirrorView {
     this.view.destroy();
   }
 }
-// }
 
-// radio{
 let place = document.querySelector('#editor');
 let view = new MarkdownView(place, document.querySelector('#content').value,);
 
@@ -67,4 +64,3 @@ document.querySelectorAll('input[type=radio]').forEach((button) => {
     view.focus();
   });
 });
-// }

@@ -5,4 +5,5 @@ export default defineConfig({
     outDir: 'docs',
     target: 'node18',
   },
+  base: 'https://oeyoews.github.io/prosemirror-learning'
 });
