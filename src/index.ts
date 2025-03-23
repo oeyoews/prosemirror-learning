@@ -9,9 +9,9 @@ import {
 import { exampleSetup } from 'prosemirror-example-setup';
 import './style.css';
 
+// vanilla
 class MarkdownView {
   constructor(target: HTMLElement, content: string) {
-
     this.textarea = target.appendChild(document.createElement('textarea'));
     this.textarea.value = content;
   }
@@ -27,6 +27,7 @@ class MarkdownView {
   }
 }
 
+// wysiwym
 class ProseMirrorView {
   constructor(target, content) {
     this.view = new EditorView(target, {
@@ -39,7 +40,6 @@ class ProseMirrorView {
   }
 
   get content() {
-    console.log(this.view.state.doc)
     return defaultMarkdownSerializer.serialize(this.view.state.doc);
   }
   focus() {
@@ -51,7 +51,7 @@ class ProseMirrorView {
 }
 
 let place = document.querySelector('#editor');
-let view = new MarkdownView(place, document.querySelector('#content').value,);
+let view = new ProseMirrorView(place, document.querySelector('#content').value);
 
 document.querySelectorAll('input[type=radio]').forEach((button) => {
   button.addEventListener('change', () => {
