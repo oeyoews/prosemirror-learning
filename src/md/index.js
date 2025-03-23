@@ -1,145 +1,48 @@
 import { Decoration, DecorationSet } from 'prosemirror-view';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { DOMParser } from 'prosemirror-model';
-import { schema } from 'prosemirror-schema-basic';
-import { exampleSetup } from 'prosemirror-example-setup';
 import { Plugin, TextSelection } from 'prosemirror-state';
-import 'prosemirror-view/style/prosemirror.css'
-import "./style.css"
+// import 'prosemirror-view/style/prosemirror.css';
+import './style.css';
 
-const badWords = /\b(obviously|clearly|evidently|simply)\b/gi;
-const badPunc = / ([,\.!?:]) ?/g;
+import {
+  defaultMarkdownParser,
+  MarkdownParser,
+  MarkdownSerializer,
+  MarkdownSerializerState,
+  defaultMarkdownSerializer,
+  schema,
+} from 'prosemirror-markdown';
 
-function lint(doc) {
-  let result = [],
-    lastHeadLevel = null;
 
-  function record(msg, from, to, fix) {
-    result.push({ msg, from, to, fix });
-  }
+const mdContent = `
+# 一级标题
+## 二级标题
 
-  // For each node in the document
-  doc.descendants((node, pos) => {
-    if (node.isText) {
-      // Scan text nodes for suspicious patterns
-      let m;
-      while ((m = badWords.exec(node.text)))
-        record(
-          `Try not to say '${m[0]}'`,
-          pos + m.index,
-          pos + m.index + m[0].length
-        );
-      while ((m = badPunc.exec(node.text)))
-        record(
-          'Suspicious spacing around punctuation',
-          pos + m.index,
-          pos + m.index + m[0].length,
-          fixPunc(m[1] + ' ')
-        );
-    } else if (node.type.name == 'heading') {
-      // Check whether heading levels fit under the current level
-      let level = node.attrs.level;
-      if (lastHeadLevel != null && level > lastHeadLevel + 1)
-        record(
-          `Heading too small (${level} under ${lastHeadLevel})`,
-          pos + 1,
-          pos + 1 + node.content.size,
-          fixHeader(lastHeadLevel + 1)
-        );
-      lastHeadLevel = level;
-    } else if (node.type.name == 'image' && !node.attrs.alt) {
-      // Ensure images have alt text
-      record('Image without alt text', pos, pos + 1, addAlt);
-    }
-  });
+---
 
-  return result;
-}
+**加粗文本**
+*斜体文本*
+~~删除线文本~~
+***加粗 + 斜体***
 
-function fixPunc(replacement) {
-  return function ({ state, dispatch }) {
-    dispatch(
-      state.tr.replaceWith(this.from, this.to, state.schema.text(replacement))
-    );
-  };
-}
+> 这是一个引用块
+>> 这是一个嵌套的引用块
 
-function fixHeader(level) {
-  return function ({ state, dispatch }) {
-    dispatch(state.tr.setNodeMarkup(this.from - 1, null, { level }));
-  };
-}
+- 无序列表项 1
+- 无序列表项 2
+  - 子列表项 1
+  - 子列表项 2
 
-function addAlt({ state, dispatch }) {
-  let alt = prompt('Alt text', '');
-  if (alt) {
-    let attrs = Object.assign({}, state.doc.nodeAt(this.from).attrs, { alt });
-    dispatch(state.tr.setNodeMarkup(this.from, null, attrs));
-  }
-}
+1. 有序列表项 1
+2. 有序列表项 2
+   1. 子列表项 1
+   2. 子列表项 2
 
-function lintDeco(doc) {
-  let decos = [];
-  lint(doc).forEach((prob) => {
-    decos.push(
-      Decoration.inline(prob.from, prob.to, { class: 'problem' }),
-      Decoration.widget(prob.from, lintIcon(prob), { key: prob.msg })
-    );
-  });
-  return DecorationSet.create(doc, decos);
-}
-
-function lintIcon(prob) {
-  return () => {
-    let icon = document.createElement('div');
-    icon.className = 'lint-icon';
-    icon.title = prob.msg;
-    icon.problem = prob;
-    return icon;
-  };
-}
-
-let lintPlugin = new Plugin({
-  state: {
-    init(_, { doc }) {
-      return lintDeco(doc);
-    },
-    apply(tr, old) {
-      return tr.docChanged ? lintDeco(tr.doc) : old;
-    },
-  },
-  props: {
-    decorations(state) {
-      return this.getState(state);
-    },
-    handleClick(view, _, event) {
-      if (/lint-icon/.test(event.target.className)) {
-        let { from, to } = event.target.problem;
-        view.dispatch(
-          view.state.tr
-            .setSelection(TextSelection.create(view.state.doc, from, to))
-            .scrollIntoView()
-        );
-        return true;
-      }
-    },
-    handleDoubleClick(view, _, event) {
-      if (/lint-icon/.test(event.target.className)) {
-        let prob = event.target.problem;
-        if (prob.fix) {
-          prob.fix(view);
-          view.focus();
-          return true;
-        }
-      }
-    },
-  },
-});
+`
 
 let state = EditorState.create({
-  doc: DOMParser.fromSchema(schema).parse(document.querySelector('#content')),
-  plugins: exampleSetup({ schema }).concat(lintPlugin),
+  doc: defaultMarkdownParser.parse(mdContent),
 });
 
 window.view = new EditorView(document.querySelector('#editor'), { state });
