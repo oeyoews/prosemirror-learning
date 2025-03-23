@@ -50,8 +50,20 @@ class ProseMirrorView {
   }
 }
 
-let place = document.querySelector('#editor');
-let view = new ProseMirrorView(place, document.querySelector('#content').value);
+// let place = document.querySelector('#editor');
+let place = document.createElement('div');
+place.id = 'editor';
+document.body.appendChild(place);
+
+const initValue = `
+    This is a comment written in [Markdown](http://commonmark.org). *You* may know the syntax for inserting a link, but does your whole audience? So you can give people the **choice** to use a more familiar, discoverable interface.
+## 二级标题
+
+> 这是一个引用块
+>> 这是一个嵌套的引用块
+ `;
+
+let view = new ProseMirrorView(place, initValue);
 
 document.querySelectorAll('input[type=radio]').forEach((button) => {
   button.addEventListener('change', () => {
