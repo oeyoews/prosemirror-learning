@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+
+</head>
+
+<body>
+  <script type="module" src="/src/md/index.js"></script>
+
+  <div id="editor" style="margin-bottom: 0"></div>
+  <div style="text-align: center">
+    <label style="border-right: 1px solid silver">
+      Markdown <input type=radio name=inputformat value=markdown checked>&nbsp;</label>
+    <label>&nbsp;<input type=radio name=inputformat value=prosemirror> WYSIWYM</label>
+  </div>
+
+  <div style="display: none">
+    <textarea id="content">
+      This is a comment written in [Markdow
+      n](http://commonmark.org). *You* may know the syntax for inserting a link, but does your whole audienceu can give people the **choice** to use a more familiar, discoverable interface.</textarea>
+  </div>
+</body>
+
+</html>
