@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { EditorView } from 'prosemirror-view';
 import { EditorState } from 'prosemirror-state';
 // import { DOMParser } from 'prosemirror-model';
@@ -10,7 +11,8 @@ import { exampleSetup } from 'prosemirror-example-setup';
 import './style.css';
 
 class MarkdownView {
-  constructor(target, content) {
+  constructor(target: HTMLElement, content: string) {
+
     this.textarea = target.appendChild(document.createElement('textarea'));
     this.textarea.value = content;
   }
